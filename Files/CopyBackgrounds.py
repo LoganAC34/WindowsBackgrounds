@@ -9,7 +9,7 @@ from os.path import isfile, join, exists
 from PIL import Image
 from pillow_heif import register_heif_opener
 
-# Reletive and exe paths
+# Relative and exe paths
 try:
     # we are running in a bundle
     exe = sys._MEIPASS + '\\'
