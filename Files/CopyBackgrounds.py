@@ -1,3 +1,4 @@
+import configparser
 import os
 import shutil
 import sqlite3
@@ -23,6 +24,12 @@ except AttributeError:
 def run():
     windows_backgrounds = os.getenv('LOCALAPPDATA') + '\Packages' \
                           '\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets'
+
+    # Get user variable if to use windows backgrounds
+    config = configparser.ConfigParser()
+    config = config.read(relative + 'Settings.cfg')
+    cfg_UseWindowsBackgrounds = 'UseWindowsBackgrounds' in config
+
 
     # If backgrounds folder doesn't exist, create it
     backgrounds_dir = relative + 'Backgrounds'
@@ -53,24 +60,25 @@ def run():
         cur.execute('INSERT or IGNORE INTO Backgrounds (Orientation, Path) VALUES ("' + orientation + '", "' + path + '")')
         conn.commit()
 
-    # Iterate though each windows background and copy if it's actually a background (threshold is 720p)
     numFilesCopied = 0
     filesCopied = []
-    for file in listdir(windows_backgrounds):
-        w_path = join(windows_backgrounds, file)
+    if cfg_UseWindowsBackgrounds:
+        # Iterate though each windows background and copy if it's actually a background (threshold is 720p)
+        for file in listdir(windows_backgrounds):
+            w_path = join(windows_backgrounds, file)
 
-        # Get image dimensions
-        if isfile(w_path):
-            with Image.open(w_path) as img:
-                w, h = img.size
+            # Get image dimensions
+            if isfile(w_path):
+                with Image.open(w_path) as img:
+                    w, h = img.size
 
-            # If higher than 720p and isn't already copied, copy
-            dst = backgrounds_dir + '\\' + file + '.jpg'
-            if ((w > 1280 and h > 720) or (w > 720 and h > 1280)) and not exists(dst):
-                shutil.copyfile(w_path, dst)
-                numFilesCopied += 1
-                filesCopied.append(file)
-                insert_background(dst)
+                # If higher than 720p and isn't already copied, copy
+                dst = backgrounds_dir + '\\' + file + '.jpg'
+                if ((w > 1280 and h > 720) or (w > 720 and h > 1280)) and not exists(dst):
+                    shutil.copyfile(w_path, dst)
+                    numFilesCopied += 1
+                    filesCopied.append(file)
+                    insert_background(dst)
 
     # Check if all backgrounds are added to database
     for background in listdir(backgrounds_dir):

@@ -1,5 +1,6 @@
 import os
 import shutil
+
 import PyInstaller.__main__
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -15,7 +16,8 @@ shutil.copytree(dir_path + '/Files/', dst)
 PyInstaller.__main__.run([
     dst + 'ShuffleOrder.py',
     '--distpath', dst,
-    '-F'
+    '-F',
+    '--noconsole'
 ])
 
 # Main script
@@ -23,10 +25,12 @@ PyInstaller.__main__.run([
     dst + 'ChangeBackground.py',
     '--distpath', dir_path,
     '-F',
+    '--noconsole',
     '--hidden-import', 'PYTHONCOM',
     #'--debug=imports',
     '--add-data', dst + 'db_template.db;.',
     '--add-data', dst + 'CopyBackgrounds.py;.',
+    '--add-data', dst + 'Settings_template.cfg;.',
     '--add-data', dst + 'ShuffleOrder.exe;.'
 ])
 

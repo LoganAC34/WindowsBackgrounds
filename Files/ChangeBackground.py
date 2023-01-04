@@ -2,6 +2,8 @@ import os
 import shutil
 import sqlite3
 import sys
+from os.path import exists
+
 import win32api
 import win32con
 import win32gui
@@ -27,6 +29,11 @@ try:
     shutil.copyfile(exe + shuffleOrder, relative + shuffleOrder)
 except shutil.SameFileError:
     pass
+
+# Create config file if it doesn't exist
+cfgFile = 'Settings.cfg'
+if not exists(relative + cfgFile):
+    shutil.copyfile(exe + 'Settings_template.cfg', relative + cfgFile)
 
 monitors = get_monitors()  # win32api.EnumDisplayMonitors() # Get monitors
 
