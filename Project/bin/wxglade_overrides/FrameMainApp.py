@@ -4,6 +4,7 @@ from Project.bin.Scripts import Config
 from Project.bin.Scripts.Global import GlobalVars
 from Project.bin.wxglade.wxFrameMainApp import *
 from Project.bin.wxglade_overrides import RenameDialog
+from Project.bin.wxglade_overrides import WarningDialog
 
 
 class MainApp(wxFrameMainApp):
@@ -11,6 +12,7 @@ class MainApp(wxFrameMainApp):
         wxFrameMainApp.__init__(self, *args, **kwds)
         cfgFile_path = GlobalVars.cfgFile_path
         self.RenameWindow = None
+        self.WarningDialog = None
 
         self.on_start()
 
@@ -28,6 +30,12 @@ class MainApp(wxFrameMainApp):
         for tab in profile_tabs:
             profile_name = tab.Label()
             Config.get_profile_paths(profile_name)
+
+    def on_close(self, save: bool=False):
+        if save:
+            print("Saving is not implemented!")
+
+        self.Destroy()
 
     def on_resize(self, event):
         # Update column width
@@ -167,6 +175,13 @@ class MainApp(wxFrameMainApp):
 
     def onButton_window_cancel(self, event):  # wxGlade: TabTemplate.<event_handler>
         print("Event handler 'onButton_window_cancel' not implemented!")
+        if not self.WarningDialog:
+            title = f"Are you sure?"
+            message = "Do you really want to cancel all changes made?"
+            self.WarningDialog = WarningDialog.WarningDialog(self, 2, title, message, )
+            self.WarningDialog.CentreOnParent()
+            self.Disable()
+            self.WarningDialog.Show()
         event.Skip()
 
 
