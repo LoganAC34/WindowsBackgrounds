@@ -118,18 +118,17 @@ class _992990114_wxFrame(wx.Frame):
         event.Skip()
 
     def path_add(self, event):
-        print("Event handler 'path_add' not implemented!")
+        print("Event handler 'onButton_path_add' not implemented!")
         event.Skip()
 
     def path_delete(self, event):
-        print("Event handler 'path_delete' not implemented!")
+        print("Event handler 'onButton_path_delete' not implemented!")
         event.Skip()
 
     def window_apply(self, event):
-        print("Event handler 'window_apply' not implemented!")
+        print("Event handler 'onButton_window_apply' not implemented!")
         event.Skip()
 
     def window_cancel(self, event):
-        print("Event handler 'window_cancel' not implemented!")
+        print("Event handler 'onButton_window_cancel' not implemented!")
         event.Skip()
-

@@ -2,10 +2,10 @@
 /dist/
 /Backgrounds/
 /background.png
-/backgrounds.db
+/Project/Testing/backgrounds.db
 /ShuffleOrder.spec
 /ChangeBackground.spec
 /WindowsBackgroundsShuffleOrder.spec
-/Files/ShuffleOrder.exe
+/Project/bin/Resources/ShuffleOrder.exe
 /ShuffleOrder.exe
-/Settings.cfg
+/Project/Testing/Settings.cfg
