@@ -37,7 +37,7 @@ PyInstaller.__main__.run([
     '-F'
     #'--debug=imports',
     #'--add-data', dst + 'db_template.db;.',
-    #'--add-data', dst + 'CopyBackgrounds.py;.',
+    #'--add-data', dst + 'GetBackgrounds.py;.',
     #'--add-data', dst + 'Settings_template.cfg;.',
     #'--add-data', dst + 'ShuffleOrder.exe;.'
 ])

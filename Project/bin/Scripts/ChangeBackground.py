@@ -7,39 +7,11 @@ import win32gui
 from PIL import Image, ImageOps
 from screeninfo import get_monitors
 
-from Project.bin.Scripts import CopyBackgrounds, Config
+from Project.bin.Scripts import GetBackgrounds, Config
 from Project.bin.Scripts.Global import GlobalVars
 
 
 def run(profile: str):
-    profile_options = Config.get_all_options_for_profile(profile)
-
-    monitors = get_monitors()  # win32api.EnumDisplayMonitors() # Get monitors
-
-    # Set min and max default values
-    height_min = 0
-    height_max = 0
-    width_min = 0
-    width_max = 0
-
-    # Go through each monitor and get min and max coordinate values
-    for monitor in monitors:
-        height = monitor.y + monitor.height
-        if monitor.y < height_min:
-            height_min = monitor.y
-        if height > height_max:
-            height_max = height
-
-        width = monitor.x + monitor.width
-        if monitor.x < width_min:
-            width_min = monitor.x
-        if width > width_max:
-            width_max = width
-
-    # Create new blank image big enough to encompass entire desktop across multiple monitors
-    desktop_width = abs(width_max) + abs(width_min)
-    desktop_height = abs(height_max) + abs(height_min)
-    img = Image.new("RGB", (desktop_width, desktop_height))
 
     def get_image(w: int, h: int):
         # Determine orientation
@@ -70,8 +42,35 @@ def run(profile: str):
         win32api.RegSetValueEx(key, "TileWallpaper", 0, win32con.REG_SZ, "1")
         win32gui.SystemParametersInfo(win32con.SPI_SETDESKWALLPAPER, path, 1 + 2)
 
-    if profile_options['use_windows_backgrounds']:
-        CopyBackgrounds.run(profile)
+    # initialization
+    profile_options = Config.get_all_options_for_profile(profile)  # Get profile settings
+    GetBackgrounds.run(profile)  # Manage background DB
+    monitors = get_monitors()  # Get monitors
+
+    # Set min and max default values
+    height_min = 0
+    height_max = 0
+    width_min = 0
+    width_max = 0
+
+    # Go through each monitor and get min and max coordinate values
+    for monitor in monitors:
+        height = monitor.y + monitor.height
+        if monitor.y < height_min:
+            height_min = monitor.y
+        if height > height_max:
+            height_max = height
+
+        width = monitor.x + monitor.width
+        if monitor.x < width_min:
+            width_min = monitor.x
+        if width > width_max:
+            width_max = width
+
+    # Create new blank image big enough to encompass entire desktop across multiple monitors
+    desktop_width = abs(width_max) + abs(width_min)
+    desktop_height = abs(height_max) + abs(height_min)
+    img = Image.new("RGB", (desktop_width, desktop_height))
 
     # print(GlobalVars.dbFile_path)
     conn = sqlite3.connect(GlobalVars.dbFile_path)
@@ -104,4 +103,4 @@ def run(profile: str):
 
 
 if __name__ == '__main__':
-    run()
+    run('')
