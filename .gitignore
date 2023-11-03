@@ -1,11 +1,3 @@
 /build/
+/Project/Testing/
 /dist/
-/Backgrounds/
-/background.png
-/Project/Testing/backgrounds.db
-/ShuffleOrder.spec
-/ChangeBackground.spec
-/WindowsBackgroundsShuffleOrder.spec
-/Project/bin/Resources/ShuffleOrder.exe
-/ShuffleOrder.exe
-/Project/Testing/Settings.cfg

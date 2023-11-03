@@ -114,7 +114,7 @@ class _992990114_wxFrame(wx.Frame):
         event.Skip()
 
     def profile_delete(self, event):
-        print("Event handler 'profile_delete' not implemented!")
+        print("Event handler 'delete_unused_profiles' not implemented!")
         event.Skip()
 
     def path_add(self, event):

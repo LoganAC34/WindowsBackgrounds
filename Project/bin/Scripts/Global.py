@@ -21,9 +21,14 @@ class GlobalVars(object):
     else:
         # we are running in a normal Python environment
         print('Not frozen')
-        exe = os.path.abspath('./') + '\\'
-        app_path = os.path.abspath('../../Testing/Local_Instant_Messenger.exe')
-        relative = '\\'.join(exe.split('\\')[:-2]) + '\\'
+        app_dir = os.path.abspath('./Project') + '\\'
+        exe = os.path.join(app_dir, 'bin') + '\\'
+        app_path = os.path.join(app_dir, 'Testing\\Local_Instant_Messenger.exe')
+        relative = os.path.join(app_dir, 'Testing') + '\\'
         debug = True
 
-    cfgFile_path = os.path.join(relative, 'profiles.cfg')  # Config file
+    windowsBackground_path = os.path.join(relative, 'Windows Backgrounds')
+    cfgFile_path = os.path.join(relative, 'profiles.cfg')  # Config file path
+    dbFile_path = os.path.join(relative, 'backgrounds.db')  # Database file path
+    dbTemplateFile_path = os.path.join(exe, 'Resources', 'db_template.db')  # Database file path
+    dbTableTemplate = 'template'

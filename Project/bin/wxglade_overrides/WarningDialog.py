@@ -27,11 +27,17 @@ class WarningDialog(wxWarningDialog):
             self.button_YES.Show()
             self.button_NO.Show()
 
+        self.Fit()
+
+
     def on_yesOk(self, event):
         #print("Event handler 'on_yesOk' not implemented!")
         self.function_yesOk()
+        self.Destroy()
         event.Skip()
 
     def on_noCancel(self, event):
-        print("Event handler 'on_noCancel' not implemented!")
+        #print("Event handler 'on_noCancel' not implemented!")
+        self.parent.Enable()
+        self.Destroy()
         event.Skip()

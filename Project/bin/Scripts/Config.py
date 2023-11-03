@@ -1,106 +1,152 @@
 import configparser
+import sqlite3
+import uuid
 
 from Project.bin.Scripts.Global import GlobalVars
 
 
-def get_profile_count():
-    """Returns how many profiles there are.
-        :return: int
-    """
-    # Get Config values
+def get_all_profiles():
     config = configparser.ConfigParser()
     config.read(GlobalVars.cfgFile_path)
-    count = len(config.sections())
-    return count
+    return config.sections()
 
 
-def get_profile_paths(profile: str):
-    """Gets attributes from config file, allowing 'profile_name' to change when debug = True
+def get_paths_for_profile(profile: str):
+    """Gets paths of profile settings. DOES NOT INCLUDE ANY OTHER SETTINGS!
 
     :param profile: 'local' or 'remote'
-    :return: attribute value (string)
+    :return: attribute value (list)
     """
 
     # Get Config values
     config = configparser.ConfigParser()
     config.read(GlobalVars.cfgFile_path)
 
-    return config[profile].items()
+    options = config[profile]
+
+    paths = []
+    for key, value in options.items():
+        try:
+            int(key)
+            paths.append(value)
+        except ValueError:
+            pass
+
+    return paths
 
 
-def add_profile(profile_name, paths: list=None):
-    """Add new profile with specified profile name. Will return False if profile already exists.
+def get_options_for_profile(profile: str):
+    """Gets options other than paths. DOES NOT INCLUDE PATHS!
 
-    :param paths:
-    :param profile_name: Profile name to add
-    :return: True if successfully run, false otherwise.
+    :param profile: 'local' or 'remote'
+    :return: attribute value (dict)
+    """
+
+    # Get Config values
+    config = configparser.ConfigParser()
+    config.read(GlobalVars.cfgFile_path)
+
+    options = config[profile]
+
+    settings = {}
+    for key, value in options.items():
+        try:
+            int(key)
+        except ValueError:
+            settings[key] = value
+
+    return settings
+
+
+def get_all_options_for_profile(profile: str):
+    """
+    Get all settings for profile.
+    :param profile: profile name
+    :return: profile settings (dict)
+    """
+
+    # Get Config values
+    config = configparser.ConfigParser()
+    config.read(GlobalVars.cfgFile_path)
+
+    options = config[profile]
+
+    return options
+
+def add_or_update_profile(profile_name: str, options: dict = None):
+    """Add new or overwrites existing profile with specified profile name.
+    Returns False if profile already exists and True if otherwise.
+
+    :param options:
+    :param profile_name: Profile name
+    :return: True if profile is new, false otherwise.
     """
     print(f"Adding profile_name {profile_name}")
 
     config = configparser.ConfigParser()
     config.read(GlobalVars.cfgFile_path)
 
-    # If profile already exists early return False
-    if profile_name in config.sections():
-        return False
+    output = False
+    if profile_name not in config.sections():
+        output = True
 
-    profile_paths = {}
-    if paths:
-        for x, path in enumerate(paths):
-            profile_paths[x] = path
+    # Give database unique ID if one does not exist
+    if 'database_id' not in options or not options['database_id']:
+        options['database_id'] = uuid.uuid4().hex
 
-    config[profile_name] = profile_paths
+    config[profile_name] = options
 
     # Write to config file
     with open(GlobalVars.cfgFile_path, 'w') as configfile:  # save
         config.write(configfile)
 
-    return True
+    return output
 
 
-def delete_profile(profile: str):
+def delete_unused_profiles(profiles_to_keep: list):
     """Delete profile_name from config file.
 
-        :param profile: profile_name name
+        :param profiles_to_keep: profile_names to keep
         :return: True if run successfully
     """
     config = configparser.ConfigParser()
     config.read(GlobalVars.cfgFile_path)
 
-    config.remove_section(profile)
-
-    # Write to config file
-    with open(GlobalVars.cfgFile_path, 'w') as configfile:  # save
-        config.write(configfile)
-
-    return True
-
-
-def add_path(profile: str, path: str):
-    """Set path of path number
-
-        :param profile: Profile name
-        :param path: Folder path
-        :return: True if run successfully.
-    """
-
-    # Get Config values
-    config = configparser.ConfigParser()
-    config.read(GlobalVars.cfgFile_path)
-
-    path_number = str(len(config.sections()))
-    config[profile][path_number] = path
+    all_profiles = get_all_profiles()
+    for profile in all_profiles:
+        if profile not in profiles_to_keep:
+            config.remove_section(profile)
 
     # Write to config file
     with open(GlobalVars.cfgFile_path, 'w') as configfile:  # save
         config.write(configfile)
 
 
-def delete_path(profile: str, path: str):
-    config = configparser.ConfigParser()
-    config.read(GlobalVars.cfgFile_path)
+def create_new_dataset_for_profile(profile_name: str):
+    # Connect to the SQLite database
+    conn = sqlite3.connect(GlobalVars.dbFile_path)
+    cursor = conn.cursor()
 
-    paths = get_profile_paths(profile)
-    for x, key, value in enumerate(paths.items()):
-        if value != path:
-            config[profile][x] = value
+    # Define the source table name and the new table name
+    source_table_name = 'original_table'  # Replace with your source table name
+    new_table_name = 'copied_table'  # Replace with your desired new table name
+
+    # 1. Get the schema of the original table
+    cursor.execute(f"PRAGMA table_info({source_table_name})")
+    columns = cursor.fetchall()
+
+    # 2. Create a new table with the same schema
+    create_table_query = f"CREATE TABLE IF NOT EXISTS {new_table_name} ("
+    create_table_query += ', '.join([f"{col[1]} {col[2]}" for col in columns])
+    create_table_query += ")"
+    cursor.execute(create_table_query)
+    conn.commit()
+
+    # 3. Optionally, copy indexes, constraints, and triggers
+    # You can query the sqlite_master table for this information and create them for the new table
+
+    # Commit the changes
+    conn.commit()
+
+    # Close the database connection
+    conn.close()

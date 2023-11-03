@@ -1,4 +1,3 @@
-import configparser
 import os
 import shutil
 import sqlite3
@@ -9,36 +8,29 @@ from os.path import isfile, join, exists
 from PIL import Image
 from pillow_heif import register_heif_opener
 
-from Project.bin.Scripts import Global
+from Project.bin.Scripts import Config
+from Project.bin.Scripts.Global import GlobalVars
 
 # Relative and exe paths
-exe = Global.GlobalVars.exe
-relative = Global.GlobalVars.relative
+exe = GlobalVars.exe
+relative = GlobalVars.relative
 
-# noinspection PyUnresolvedReferences
-def run():
-    windows_backgrounds = os.getenv('LOCALAPPDATA') + '\Packages' \
-                          '\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets'
+def run(profile_name):
+    windows_backgrounds = os.path.join(os.getenv('LOCALAPPDATA'),
+                                       'Packages\Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy\LocalState\Assets')
 
-    # Get user variable if to use windows backgrounds
-    config = configparser.ConfigParser()
-    config = config.read(relative + 'Settings.cfg')
-    cfg_UseWindowsBackgrounds = 'UseWindowsBackgrounds' in config
-
+    profile_options = Config.get_all_options_for_profile(profile_name)  # Get profile options
+    profile_table = profile_options['database_id']  # Get profile table name
 
     # If backgrounds folder doesn't exist, create it
-    backgrounds_dir = relative + 'Backgrounds'
-    if not exists(backgrounds_dir):
-        mkdir(backgrounds_dir)
+    if not exists(GlobalVars.windowsBackground_path) and profile_options['use_windows_backgrounds']:
+        mkdir(GlobalVars.windowsBackground_path)
 
-    db_backgrounds = relative + 'backgrounds.db'
-    print(db_backgrounds)
-    # If backgrounds DB doesn't exist, create new from template
-    if not exists(db_backgrounds):
-        shutil.copyfile(exe + 'db_template.db', db_backgrounds)
+    print(GlobalVars.dbFile_path)
 
-    conn = sqlite3.connect(db_backgrounds)
+    conn = sqlite3.connect(GlobalVars.dbFile_path)
     cur = conn.cursor()
+
     def insert_background(path):
         register_heif_opener()
         try:
@@ -52,12 +44,12 @@ def run():
         orientation = 'Landscape'
         if width < height:
             orientation = 'Portrait'
-        cur.execute('INSERT or IGNORE INTO Backgrounds (Orientation, Path) VALUES ("' + orientation + '", "' + path + '")')
+        cur.execute(f'INSERT or IGNORE INTO "{profile_table}" (Orientation, Path) VALUES ("{orientation}", "{path}")')
         conn.commit()
 
     numFilesCopied = 0
     filesCopied = []
-    if cfg_UseWindowsBackgrounds:
+    if profile_options['use_windows_backgrounds']:
         # Iterate though each windows background and copy if it's actually a background (threshold is 720p)
         for file in listdir(windows_backgrounds):
             w_path = join(windows_backgrounds, file)
@@ -68,7 +60,7 @@ def run():
                     w, h = img.size
 
                 # If higher than 720p and isn't already copied, copy
-                dst = backgrounds_dir + '\\' + file + '.jpg'
+                dst = GlobalVars.windowsBackground_path + f'\\{file}.jpg'
                 if ((w > 1280 and h > 720) or (w > 720 and h > 1280)) and not exists(dst):
                     shutil.copyfile(w_path, dst)
                     numFilesCopied += 1
@@ -76,42 +68,28 @@ def run():
                     insert_background(dst)
 
     # Check if all backgrounds are added to database
-    for background in listdir(backgrounds_dir):
-        s_path = join(backgrounds_dir, background)
+    for background in listdir(GlobalVars.windowsBackground_path):
+        s_path = join(GlobalVars.windowsBackground_path, background)
         insert_background(s_path)
 
     # Check if any backgrounds have been removed
-    allBackgrounds = cur.execute('SELECT Path FROM Backgrounds')
+    allBackgrounds = cur.execute(f'SELECT Path FROM {profile_table}')
     allBackgrounds = allBackgrounds.fetchall()
     for background in allBackgrounds:
         background_test = relative + background[0]
         if not exists(background_test):
-            cur.execute('DELETE FROM Backgrounds WHERE Path = "' + background[0] + '"')
+            cur.execute(f'DELETE FROM "{profile_table}" WHERE Path = "{background[0]}"')
             conn.commit()
 
-        """
-        # Reset Used value
-        cur.execute('UPDATE Backgrounds SET Used = 0')
-        conn.commit()
-        
-        # Reshuffle background order
-        allBackgrounds = cur.execute('SELECT Path FROM Backgrounds')
-        allBackgrounds = allBackgrounds.fetchall()
-        random.shuffle(allBackgrounds)
-        for x, background in enumerate(allBackgrounds):
-            x += 1
-            cur.execute('UPDATE Backgrounds SET Num = ' + str(x) + ' WHERE Path = "' + background[0] + '"')
-        conn.commit()
-        """
     # Print images copied
     print(str(numFilesCopied) + " new backgrounds saved.")
-    allBackgrounds = cur.execute('SELECT Path FROM Backgrounds')
+    allBackgrounds = cur.execute(f'SELECT Path FROM "{profile_table}"')
     allBackgrounds = allBackgrounds.fetchall()
     backgroundCount = len(allBackgrounds)
     print(str(backgroundCount) + " backgrounds total.")
     for x, file in enumerate(filesCopied):
-        print(str(x + 1) + ": " + file + ".jpg")
+        print(f"{str(x + 1)}: {file}.jpg")
 
-# test1.py executed as script
+# CopyBackgrounds.py executed as script
 if __name__ == '__main__':
     run()
