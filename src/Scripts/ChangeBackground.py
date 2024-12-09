@@ -5,9 +5,10 @@ import win32api
 import win32con
 import win32gui
 from PIL import Image, ImageOps
-from Project.bin.Scripts import GetBackgrounds, Config
-from Project.bin.Scripts.Global import GlobalVars
 from screeninfo import get_monitors
+
+from Scripts import GetBackgrounds, Config
+from Scripts.Global import GlobalVars
 
 
 def run(profile: str):

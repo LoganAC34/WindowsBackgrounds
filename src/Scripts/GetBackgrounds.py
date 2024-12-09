@@ -5,9 +5,10 @@ from os import mkdir
 from os.path import isfile, exists
 
 from PIL import Image
-from Project.bin.Scripts import Config
-from Project.bin.Scripts.Global import GlobalVars
 from pillow_heif import register_heif_opener
+
+from Scripts import Config
+from Scripts.Global import GlobalVars
 
 
 def insert_background(profile_table, path):

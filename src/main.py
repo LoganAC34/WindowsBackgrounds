@@ -2,8 +2,7 @@
 # -*- coding: UTF-8 -*-
 from optparse import OptionParser
 
-from Project.bin.Scripts import ChangeBackground, ShuffleOrder
-
+from Scripts import ChangeBackground, ShuffleOrder
 from wxglade_overrides.FrameMainApp import *
 
 

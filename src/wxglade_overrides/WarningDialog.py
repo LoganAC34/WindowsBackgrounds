@@ -1,4 +1,4 @@
-from Project.bin.wxglade.wxWarningDialog import *
+from wxglade.wxWarningDialog import *
 
 
 class WarningDialog(wxWarningDialog):
