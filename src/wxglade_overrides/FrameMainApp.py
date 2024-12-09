@@ -3,13 +3,12 @@ import shutil
 import sqlite3
 from os.path import exists
 
-from wx.lib.agw.multidirdialog import MultiDirDialog
-
 from Project.bin.Scripts import Config
 from Project.bin.Scripts.Global import GlobalVars
 from Project.bin.wxglade.wxFrameMainApp import *
 from Project.bin.wxglade_overrides import RenameDialog
 from Project.bin.wxglade_overrides import WarningDialog
+from wx.lib.agw.multidirdialog import MultiDirDialog
 
 
 class MainApp(wxFrameMainApp):

@@ -1,8 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/src/env python3
 # -*- coding: UTF-8 -*-
 from optparse import OptionParser
 
 from Project.bin.Scripts import ChangeBackground, ShuffleOrder
+
 from wxglade_overrides.FrameMainApp import *
 
 

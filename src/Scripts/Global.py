@@ -22,7 +22,7 @@ class GlobalVars(object):
         # we are running in a normal Python environment
         print('Not frozen')
         app_dir = os.path.abspath('./Project') + '\\'
-        exe = os.path.join(app_dir, 'bin') + '\\'
+        exe = os.path.join(app_dir, 'src') + '\\'
         app_path = os.path.join(app_dir, 'Testing\\Local_Instant_Messenger.exe')
         relative = os.path.join(app_dir, 'Testing') + '\\'
         debug = True

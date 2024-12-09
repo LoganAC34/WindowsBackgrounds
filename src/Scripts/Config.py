@@ -1,6 +1,8 @@
 import configparser
+import shutil
 import sqlite3
 import uuid
+from os.path import exists
 
 from Project.bin.Scripts.Global import GlobalVars
 
@@ -122,31 +124,15 @@ def delete_unused_profiles(profiles_to_keep: list):
         config.write(configfile)
 
 
-def create_new_dataset_for_profile(profile_name: str):
-    # Connect to the SQLite database
+def connect_to_db():
+    """
+    Returns the connection and cursor of the background database, making sure it exists before connecting.
+    :return: conn, cursor
+    """
+    if not exists(GlobalVars.dbFile_path):
+        shutil.copyfile(GlobalVars.dbTemplateFile_path, GlobalVars.dbFile_path)
+
     conn = sqlite3.connect(GlobalVars.dbFile_path)
     cursor = conn.cursor()
 
-    # Define the source table name and the new table name
-    source_table_name = 'original_table'  # Replace with your source table name
-    new_table_name = 'copied_table'  # Replace with your desired new table name
-
-    # 1. Get the schema of the original table
-    cursor.execute(f"PRAGMA table_info({source_table_name})")
-    columns = cursor.fetchall()
-
-    # 2. Create a new table with the same schema
-    create_table_query = f"CREATE TABLE IF NOT EXISTS {new_table_name} ("
-    create_table_query += ', '.join([f"{col[1]} {col[2]}" for col in columns])
-    create_table_query += ")"
-    cursor.execute(create_table_query)
-    conn.commit()
-
-    # 3. Optionally, copy indexes, constraints, and triggers
-    # You can query the sqlite_master table for this information and create them for the new table
-
-    # Commit the changes
-    conn.commit()
-
-    # Close the database connection
-    conn.close()
+    return conn, cursor

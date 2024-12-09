@@ -4,7 +4,7 @@ import shutil
 import PyInstaller.__main__
 
 dir_PyCharm = os.path.abspath('../')
-dir_path = os.path.abspath('./bin')
+dir_path = os.path.abspath('./src')
 build = os.path.join(dir_PyCharm, 'build\\')
 
 dir_name = os.path.basename(os.path.abspath('../'))
