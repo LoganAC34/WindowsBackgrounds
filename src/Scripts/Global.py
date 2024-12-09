@@ -21,9 +21,9 @@ class GlobalVars(object):
     else:
         # we are running in a normal Python environment
         print('Not frozen')
-        app_dir = os.path.abspath('./Project') + '\\'
+        app_dir = os.path.abspath('.') + '\\'
         exe = os.path.join(app_dir, 'src') + '\\'
-        app_path = os.path.join(app_dir, 'Testing\\Local_Instant_Messenger.exe')
+        app_path = os.path.join(app_dir, 'Testing', 'Windows Backgrounds.exe')
         relative = os.path.join(app_dir, 'Testing') + '\\'
         debug = True
 

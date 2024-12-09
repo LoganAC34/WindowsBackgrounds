@@ -1,4 +1,4 @@
-from Project.bin.wxglade.wxRenameDialog import *
+from wxglade.wxRenameDialog import *
 
 
 class RenameDialog(wxRenameDialog):

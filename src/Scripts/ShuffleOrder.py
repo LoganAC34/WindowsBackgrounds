@@ -1,6 +1,6 @@
 import random
 
-from Project.bin.Scripts import Config, GetBackgrounds
+from Scripts import Config, GetBackgrounds
 
 
 def run(profile):

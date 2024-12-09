@@ -4,7 +4,7 @@ import sqlite3
 import uuid
 from os.path import exists
 
-from Project.bin.Scripts.Global import GlobalVars
+from Scripts.Global import GlobalVars
 
 
 def get_all_profiles():
